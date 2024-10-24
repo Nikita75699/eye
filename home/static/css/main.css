@@ -1,0 +1,240 @@
+body{
+	background-size: cover;
+	background-color: #f2f2f2;
+	font-family: "Roboto";
+	font-weight: 300;
+	font-size: 16px;
+	color: #555;
+	font-smoothing: antialiased;
+	overflow-scrolling: touch;
+}
+h3{
+    color: red;
+}
+.scroll {
+    max-height: 50%;
+    overflow-y: auto;
+}
+.main-background {
+background-color: white;
+height: 100%;
+}
+/**Херед**/
+.main-header {
+	color: red;
+
+}
+.main-header__link {
+    color: #000;
+    font-size: 24px;
+    line-height: 30px;
+    font-weight: 400;
+    border-radius: 5px;
+}
+.main-header__link:hover {
+    background-color: #B5B8B1;
+    color: #000;
+}
+.main-header__button {
+    background-color:#8d0f07;
+    border: none;
+
+}
+.main-header__button:hover {
+    background-color: #E34234;
+    box-shadow: none;
+    outline: none;
+}
+.main-header__button:focus {
+    background-color: #E34234;
+    box-shadow: none;
+
+}
+.main-header__button:active {
+    background-color: #E34234;
+    box-shadow: none;
+}
+/**Текущие задачи**/
+.main-index-current-task {
+mih-height: 500px;
+max-height 800px;
+}
+.main-footer {
+background-color: white;
+}
+.user-danger {
+cursor: pointer;
+background-color: #f8d7da;
+}
+.user-danger:hover {
+background-color: #F0B9C6;
+}
+.user-warning {
+cursor: pointer;
+background-color: #fff3cd
+}
+.user-warning:hover {
+background-color: #EFD996;
+}
+/**Исследование**/
+.appointment-card-background {
+background-color: #e1e1e1;
+border-radius: 5px;
+}
+.appointment-card-title {
+color: red;
+font-weight: 500;
+font-size: 20px;
+}
+.appointment-card-textarea {
+
+}
+.appointment-card-textarea:focus {
+
+box-shadow: none;
+border: 1px solid black;
+}
+.appointment-card-textarea:active {
+border: 1px solid black;
+}
+.appointment-button {
+    border: none;
+    background-color: #206876;
+    color: #fff;
+}
+.appointment-button:hover {
+    background-color: #04859D;
+    color: #fff;
+}
+.appointment-button:focus {
+box-shadow: none;
+background-color: #04859D;
+color: #fff;
+}
+.appointment-button:active {
+box-shadow: none;
+background-color: #04859D;
+color: #fff;
+}
+
+.multi-select-doctor {
+ cursor: pointer;
+    background-color: #e1e1e1;
+}
+.multi-select-doctor:hover {
+border: 1px solid black;
+}
+.multi-select-doctor:focus {
+ box-shadow: none;
+ border: 1px solid black;
+}
+.multi-select-doctor:active {
+ border: 1px solid black;
+}
+.multi-select-doctor-option:hover {
+    background-color: #cecece;
+}
+
+/* Скролл таблица */
+
+.scroll-table-body {
+	height: 400px;
+	overflow-x: auto;
+	margin-top: 0px;
+	margin-bottom: 20px;
+	border-bottom: 1px solid #eee;
+}
+.scroll-table table {
+	width:100%;
+	table-layout: fixed;
+	border: none;
+}
+.scroll-table thead th {
+	font-weight: bold;
+	text-align: left;
+	border: none;
+	padding: 10px 15px;
+	background: #d8d8d8;
+	font-size: 14px;
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+}
+.scroll-table tbody td {
+	text-align: left;
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	padding: 10px 15px;
+	font-size: 14px;
+	vertical-align: top;
+}
+.scroll-table tbody tr:nth-child(even){
+	background: #f3f3f3;
+}
+
+/* Стили для скролла */
+::-webkit-scrollbar {
+	width: 6px;
+}
+::-webkit-scrollbar-track {
+	box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+::-webkit-scrollbar-thumb {
+	box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+.select_patient{
+    background: #ececec;
+    width: 100%;
+    height: 300px;
+    padding: 10px;
+}
+
+.multi-wrapper {
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    width: 100%;
+    height: 200px;
+    font-size: 16px;
+    background: #ececec;
+    font-size: 17px;
+    padding-top: 3mm;
+
+}
+
+.multi-wrapper .item {
+
+    display: block;
+    font-family: Arial;
+    color: #141619;
+    font-size: 17px;
+    padding-top: 3mm;
+}
+
+.multi-wrapper .item .option {
+
+    display: block;
+    font-family: Arial;
+    text-decoration: None;
+    color: red;
+}
+
+
+.multi-wrapper .item:hover {
+    background: #ececec;
+    border-radius: 2px;
+}
+
+.multi-wrapper .item-group {
+    padding: 5px 10px;
+}
+
+.pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+}
+
+.pagination a {
+        margin: 0 5px;
+        text-decoration: none;
+}

@@ -1,0 +1,121 @@
+.multi-wrapper {
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    width: 100%;
+    font-size: 16px;
+
+}
+
+.multi-wrapper .option-wrapper {
+
+    color: red;
+}
+
+.multi-wrapper .non-selected-wrapper,
+.multi-wrapper .selected-wrapper {
+    box-sizing: border-box;
+    display: inline-block;
+    height: 200px;
+    overflow-y: scroll;
+    padding: 10px;
+    vertical-align: top;
+    width: 50%;
+        color: red;
+}
+
+.multi-wrapper .non-selected-wrapper {
+    background: #e1e1e1;
+    border-right: 1px solid #ccc;
+}
+
+.multi-wrapper .selected-wrapper {
+    background: #e1e1e1;
+}
+
+.multi-wrapper .header {
+    color: #4f4f4f;
+    cursor: default;
+    font-weight: bold;
+    margin-bottom: 5px;
+    padding: 5px 10px;
+}
+
+.multi-wrapper .item {
+    cursor: pointer;
+    display: block;
+    font-family: Arial;
+    text-decoration: None;
+    color: #141619;
+    font-size: 20px;
+}
+
+.multi-wrapper .item .option {
+    cursor: pointer;
+    display: block;
+    font-family: Arial;
+    text-decoration: None;
+    color: red;
+}
+
+.multi-wrapper .item:focus {
+  background-image:
+    linear-gradient(45deg, green 50%, transparent 50%),
+    linear-gradient(135deg, transparent 50%, green 50%),
+    linear-gradient(to right, #ccc, #ccc);
+  background-position:
+    calc(100% - 15px) 1em,
+    calc(100% - 20px) 1em,
+    calc(100% - 2.5em) 0.5em;
+  background-size:
+    5px 5px,
+    5px 5px,
+    1px 1.5em;
+  background-repeat: no-repeat;
+  border-color: green;
+  outline: 0;
+}
+
+.multi-wrapper .item:hover {
+    background: #ececec;
+    border-radius: 2px;
+}
+
+.multi-wrapper .item-group {
+    padding: 5px 10px;
+}
+
+.multi-wrapper .item-group .group-label {
+    display: block;
+    font-size: 0.875rem;
+    opacity: 0.5;
+    padding: 5px 0;
+}
+
+.multi-wrapper .search-input {
+    border: 0;
+    border-bottom: 1px solid #ccc;
+    border-radius: 0;
+    display: block;
+    font-size: 1em;
+    margin: 0;
+    outline: 0;
+    padding: 10px 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.multi-wrapper .non-selected-wrapper .item.selected {
+    opacity: 0.5;
+}
+
+.multi-wrapper .non-selected-wrapper .item.disabled,
+.multi-wrapper .selected-wrapper .item.disabled {
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+
+.multi-wrapper .non-selected-wrapper .item.disabled:hover,
+.multi-wrapper .selected-wrapper .item.disabled:hover {
+    background: inherit;
+    cursor: inherit;
+}

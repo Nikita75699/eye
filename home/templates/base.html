@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}" type="text/css">
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</head>
+<body class="d-flex flex-column h-100">
+<div class="main-header border-bottom">
+    <div class="container py-3 border-right border-left">
+        <header class="">
+            <ul class="nav d-flex flex-wrap align-items-center justify-content-center justify-content-md-between">
+                <li >
+                    <a href="../index" class="nav-link px-2 main-header__link">Личный кабинет</a>
+                </li>
+                <li ><a href="#" class="nav-link main-header__link">{{doctor.surname}} {{doctor.first_name}} {{doctor.patronymic}} /
+                    {% if doctor.post == 1 %}
+                        Доктор
+                    {% elif doctor.post == 2 %}
+                        Заведующий(ая)
+                    {% else %}
+                        Медсестра
+                    {% endif %}
+                    </a></li>
+                <li href="#" >
+                     <form method="GET" action="../relogin">
+                        {% csrf_token %}
+                        <button class="btn btn-primary main-header__button" type="submit" name="output">Выйти</button>
+                     </form>
+                </li>
+            </ul>
+        </header>
+    </div>
+</div>
+
+    {% block content %}{% endblock %}
+      <div class="container main-footer" style="background-color: #f2f2f2;">
+      <!-- <footer class="footer d-flex flex-wrap justify-content-between align-items-center py-3 mt-auto" >
+        <p class="col-md-6 mb-0 text-muted">© 2023 СибГМУ</p>
+        <p class="col-md-6 mb-0 text-muted">v.2.0.3</p>
+        <a href="/" class="col-md-6 d-flex align-items-end justify-content-end mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+            <img class="float-end" width="200" src="{% static 'mainApp/icons/logo_smu.png' %}" alt="" title="СИБГМУ">
+        </a>
+      </footer> -->
+      <footer class="footer d-flex flex-wrap justify-content-between align-items-center py-3 mt-auto">                
+          <div class="col"><p class="mb-0 text-muted">© 2023 СибГМУ</p></div>
+          <div class="col">                    
+            <p class="mb-0 text-center">Версия приложения v2.0.3</p>
+          </div>
+          <div class="col">                    
+            <a href="/" class="d-flex align-items-end justify-content-end mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+                <img class="float-end" width="200" src="{% static 'mainApp/icons/logo_smu.png' %}" alt="" title="СИБГМУ"/>
+            </a>
+          </div>
+      </footer>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,475 @@
+{% extends 'base.html'%}
+{% block title %}
+{% endblock %}
+{% load static %}
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}" type="text/css">
+  </head>
+  <body>
+  {% block content %}
+  <div class="border-bottom pb-3">
+      <h5 class="py-3 display-16 fw-bold text-center">
+          <div class="row">
+              <div class="text-center">
+              Пациент: {{patient.first_name}}
+                       {{patient.surname}}
+                       {{patient.patronymic}}
+              </div>
+          </div>
+          <div class="row text-center">
+              <div class="text-center">
+                Дата рождения: {{patient.date_of_birth|date:"d-m-o"}}г.
+                Дата приема: {{appointment.date|date:"d-m-o"}}г.
+              </div>
+          </div>
+      </h5>
+      <div class="container">
+          <form method="POST" action="old_appointment" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h5 class="display-10 fw-bold text-center">Просмотреть прошлые приемы</h5>
+            <div class="input-group mb-3">
+                <select id='openmodal' name="appointment_id" class="form-select multi-select-doctor" size="1" aria-label="пример элемента выбора размером равному 3">
+                  {% for appointment in appointment_old %}
+                        <option class="multi-select-doctor-option" name="appointment_id" value="{{appointment.id}}">Прием от {{appointment.date|date:"d-m-Y"}}г. </option>
+                  {% endfor %}
+                </select>
+                <button class="btn appointment-button" type="submit">Просмотреть прием</button>
+            </div>
+          </form>
+      </div>
+        <h5 class="display-10 fw-bold text-center">Данные приема</h5>
+        <form method="POST" action="../report">
+            {% csrf_token %}
+            <input name="appointment" value="{{appointment.id}}" type="hidden">
+            <input name="patient" value="{{patient.id}}" type="hidden">
+            <div class="container">
+                <div class="card border-0">
+                        <div class="row mb-3">
+
+                            {% for item in inform %}
+                                <input name="image_{{item.count}}" value="{{item.data_id}}" type="hidden">
+                                <div class="col-6 py-2">
+                                    <div class="card">
+                                        <div class="card-header text-center">
+                                          {% if item.score == -200 %}
+                                              <h5>Некачественный снимок</h5>
+                                          {% elif item.score >= 55 %}
+                                              <h5>Снимок-{{item.count}} Есть корреляция признаков с моделью НС {{item.score}}%</h5>
+                                          {% else %}
+                                              <h5>Снимок-{{item.count}} Норма</h5>
+                                          {% endif %}
+                                        </div>
+                                        <div class="card-body text-center">
+                                            <div class="card-body">
+                                                <!-- Кнопка-триггер модального окна -->
+                                                <img id="img{{item.count}}" class="img1" src={{item.image}} style="width: 100%" data-img-id="{{item.count}}" onclick="openModal({{item.count}})">
+                                            </div>
+                                             <div class="container">
+                                                {% if check %}
+                                                    <div class="col-12">
+                                                        {% for el, class in classes_list %}
+                                                            {% if el == item.class_doc %}
+                                                               <div class="form-check form-check-inline">
+                                                                  <input class="form-check-input" type="radio" name="exampleRadios{{item.count}}" id="Radios{{item.count}}{{el}}" value="{{cd}}" checked>
+                                                                  <label class="form-check-label" for="Radios{{item.count}}{{el}}">
+                                                                      {{class}}
+                                                                  </label>
+                                                               </div>
+                                                            {% else %}
+                                                               <div class="form-check form-check-inline">
+                                                                  <input class="form-check-input" type="radio" name="exampleRadios{{item.count}}" id="Radios{{item.count}}{{el}}" value="{{el}}">
+                                                                  <label class="form-check-label" for="Radios{{item.count}}{{el}}">
+                                                                      {{class}}
+                                                                  </label>
+                                                               </div>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% else %}
+                                                    <div class="col-12">
+                                                        <div class="p-2">
+                                                           <label>
+                                                              Выберите класс патологии снимка глазного дна
+                                                          </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        {% for el, class in classes_list %}
+                                                           <div class="form-check form-check-inline">
+                                                              {% if el == 1 %}
+                                                                  <input class="form-check-input" type="radio" name="exampleRadios{{item.count}}" id="Radios{{item.count}}{{el}}" value="{{el}}" checked>
+                                                                  <label class="form-check-label" for="Radios{{item.count}}{{el}}">
+                                                                      {{class}}
+                                                                  </label>
+                                                              {% else %}
+                                                                  <input class="form-check-input" type="radio" name="exampleRadios{{item.count}}" id="Radios{{item.count}}{{el}}" value="{{el}}">
+                                                                  <label class="form-check-label" for="Radios{{item.count}}{{el}}">
+                                                                      {{class}}
+                                                                  </label>
+                                                              {% endif %}
+                                                           </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                             </div>
+                                        </div>
+                                        <!-- Модальное окно -->
+                                        <div class="modal fade" id="modal{{item.count}}" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+                                          <div class="modal-dialog modal-xl">
+                                            <div class="modal-content">
+                                              <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Снимок</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                                              </div>
+                                              <div class="modal-body">
+                                                <div class="container-fluid">
+                                                    <div class="col-12 ms-auto">
+                                                         <img id="img1{{item.count}}" src={{item.image}} style="width: 100%;">
+                                                            {{inform_old_first}}
+                                                            {% for item_old in inform_old %}
+                                                                {% if item.count == item_old.count %}
+
+
+                                                                    <div>
+                                                                        <a class="open-image-btn" onclick="openImage('{{ item_old.eye_id }}')" data-count="{{ item_old.count }}">Открыть изображение</a>
+                                                                        <img id="img_old{{ item_old.eye_id }}" src="{{ item_old.image }}" style="width: 100%;">
+                                                                    </div>
+                                                                {% endif %}
+                                                            {% endfor %}
+
+                                                    </div>
+                                                </div>
+                                              </div>
+                                              <div class="modal-footer">
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="modal fade" id="modal2{{item.count}}" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+                                          <div class="modal-dialog modal-xl">
+                                            <div class="modal-content">
+                                              <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">Сегментационная маска</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                                              </div>
+                                              <div class="modal-body">
+                                                <div class="container-fluid">
+                                                    <div class="col-12">
+                                                          <img id="img1{{item.count}}" src={{item.mask_path.url}} data-img-id="{{item.count}}" style="width: 100%; height: 100%;">
+                                                    </div>
+                                                </div>
+                                              </div>
+                                              <div class="modal-footer">
+                                                <a href="modal{{item.count}}" class="btn btn-primary" data-bs-toggle="modal" role="button" onclick="openModal({{item.count}})">Вернуться к первому</a>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <script src="{% static 'js/popper.min.js' %}"></script>
+                                        <script src="{% static 'js/bootstrap.min.js' %}"></script>
+                                        <script src="{% static 'js/jquery.min.js' %}"></script>
+
+                                        <script>
+                                            $(document).ready(function() {
+                                                window.openImage = function(eye_id) {
+                                                    $.ajax({
+                                                        url: '/get_image/',
+                                                        type: 'GET',
+                                                        data: {
+                                                            'eye_id': eye_id
+                                                        },
+                                                        success: function(data) {
+                                                            $('#img_old' + eye_id).attr('src', data.image).show();
+                                                        },
+                                                        error: function(xhr, status, error) {
+                                                            console.error("Ошибка AJAX: ", status, error);
+                                                        }
+                                                    });
+                                                };
+                                            });
+                                        </script>
+
+
+                                        <script>
+                                          function openModal(imageId) {
+                                            var modal = document.getElementById("modal" + imageId);
+                                            var image = document.getElementById("img" + imageId + "-1");
+                                            var modalToggle = new bootstrap.Modal(modal);
+
+
+                                            if (modalToggle.isShown) {
+                                              modalToggle.hide();
+                                            } else {
+                                              modalToggle.show();
+                                            }
+                                          }
+
+                                          function openModal2(imageId) {
+                                              var modal = document.getElementById("modal2" + imageId);
+                                              var modalToggle = new bootstrap.Modal(modal);
+                                              modalToggle.show();
+                                          }
+                                        </script>
+                                        <div id="Info{{item.count}}" style="display: none">
+                                          <div class="container">
+                                            <div class="row">
+                                               <div class="col-4">
+                                                   <h5 class="list-group-item">Пол: </h5>
+                                                   <h5 class="list-group-item">ИД: </h5>
+                                                   <h5 class="list-group-item">Ориентация: </h5>
+                                                   <h5 class="list-group-item">Дата приема: </h5>
+                                               </div>
+                                               <div class="col-8 text-center">
+                                                   <h5 class="list-group-item">{{item.patient_sex}}</h5>
+                                                   <h5 class="list-group-item">{{item.patient_ID}}</h5>
+                                                   <h5 class="list-group-item">{{item.patient_orientation}}</h5>
+                                                   <h5 class="list-group-item">{{item.study_date}}</h5>
+                                               </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="text-center p-2">
+                                          <a id="collapseInfo{{item.count}}" class="btn appointment-button" href="#" data-bs-toggle="button" role="button" aria-disabled="false">
+                                            Сведения о снимке
+                                          </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <script>
+                              var labels = [{% for item in inform %}"{{ item.count }}",{% endfor %} ]
+                              labels.forEach(function(item) {
+                                $("#a"+item).on("click", function () {
+                                       $('#img'+item).toggle();
+                                       $('#img1'+item).toggle();
+                                });
+                                $("#collapseInfo"+item).on("click", function () {
+                                    $('#Info'+item).toggle();
+                                });
+                              });
+                            </script>
+                        </div>
+                    <div class="form-group mb-3">
+                        <label for="exampleFormControlTextarea1" name="report_data">
+                            <h5>Заключение</h5>
+                        </label>
+                        {% if check %}
+                            <textarea class="form-control appointment-card-textarea" rows="3">{{ appointment.report }}</textarea>
+                        {% else %}
+                            <textarea class="form-control appointment-card-textarea" id="exampleFormControlTextarea1" rows="3" name="report"></textarea>
+                        {% endif %}
+                    </div>
+                    <div class="col-sm text-center">
+                        {% if check %}
+                            <a href="/index" class="btn appointment-button" type="button" style="width: 25%; margin: auto">Назад в личный кабинет</a>
+                        {% else%}
+                            <button class="btn appointment-button" type="submit" style="width: 25%; margin: auto">Сохранить изменения</button>
+                            <a href="{% url 'delegate' patient.id %}"  class="btn appointment-button" type="button" style="width: 25%; margin: auto">Вернуть на обработку</a>
+                            <a href="/index" class="btn appointment-button" type="button" style="width: 25%; margin: auto">Назад в личный кабинет</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <script src="{% static 'js/wheelzoom.js' %} "></script>
+            <script>
+                function load() {
+                    var zoomIn  = -100;
+                    var zoomOut = 100;
+
+                    images = wheelzoom(document.querySelectorAll('img'), {zoom: 0.1, maxZoom: 10});
+
+                    images[0].addEventListener('wheelzoom.in', function(e) {
+                        document.getElementById('label1').innerHTML = '"wheelzoom.in"';
+                    });
+                    images[0].addEventListener('wheelzoom.out', function(e) {
+                        document.getElementById('label1').innerHTML = '"wheelzoom.out"';
+                    });
+                    images[0].addEventListener('wheelzoom.dragstart', function(e) {
+                        document.getElementById('label1').innerHTML = '"wheelzoom.dragstart"';
+                    });
+                    images[0].addEventListener('wheelzoom.drag', function(e) {
+                        document.getElementById('label1').innerHTML = '"wheelzoom.drag"';
+                    });
+                    images[0].addEventListener('wheelzoom.dragend', function(e) {
+                        document.getElementById('label1').innerHTML = '"wheelzoom.dragend"';
+                    });
+
+                    images[1].addEventListener('wheelzoom.in', function(e) {
+                        images[2].doZoomIn();
+                    });
+                    images[1].addEventListener('wheelzoom.out', function(e) {
+                        images[2].doZoomOut();
+                    });
+                    images[1].addEventListener('wheelzoom.drag', function(e) {
+                        images[2].doDrag(e.detail.bgPosX, e.detail.bgPosY);
+                    });
+
+                    images[2].addEventListener('wheelzoom.in', function(e) {
+                        images[1].doZoomIn();
+                    });
+                    images[2].addEventListener('wheelzoom.out', function(e) {
+                        images[1].doZoomOut();
+                    });
+                    images[2].addEventListener('wheelzoom.drag', function(e) {
+                        images[1].doDrag(e.detail.bgPosX, e.detail.bgPosY);
+                    });
+
+                    images[3].addEventListener('wheelzoom.in', function(e) {
+                        images[4].doZoomIn();
+                    });
+                    images[3].addEventListener('wheelzoom.out', function(e) {
+                        images[4].doZoomOut();
+                    });
+                    images[3].addEventListener('wheelzoom.dragend', function(e) {
+                        images[4].doDrag(e.detail.x, e.detail.y);
+                    });
+
+                    images[4].addEventListener('wheelzoom.in', function(e) {
+                        images[3].doZoomIn();
+                    });
+                    images[4].addEventListener('wheelzoom.out', function(e) {
+                        images[3].doZoomOut();
+                    });
+                    images[4].addEventListener('wheelzoom.dragend', function(e) {
+                        images[3].doDrag(e.detail.x, e.detail.y);
+                    });
+                }
+            </script>
+        </form>
+      </div>
+  {% endblock %}
+
+</body>
+</html>
+<!--                              {% for i in inform %}-->
+<!--                                    &lt;!&ndash; Модальное окно &ndash;&gt;-->
+<!--                                    <div class="modal fade" id="modal{{i.count}}" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="false">-->
+<!--                                      <div class="modal-dialog modal-xl">-->
+<!--                                        <div class="modal-content">-->
+<!--                                          <div class="modal-header">-->
+<!--                                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Заголовок модального окна</h1>-->
+<!--                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>-->
+<!--                                          </div>-->
+<!--                                          <div>-->
+<!--                                              <img src="{{i.mask_path.url}}" style="width: 100%">-->
+<!--                                          </div>-->
+<!--                                          <div class="modal-footer">-->
+<!--                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>-->
+<!--                                          </div>-->
+<!--                                        </div>-->
+<!--                                      </div>-->
+<!--                                    </div>-->
+<!--                              {% endfor %}-->
+<!--                          </div>-->
+<!--                          <script>-->
+<!--                              var labels = [{% for item in inform %}"{{ item.count }}",{% endfor %} ]-->
+<!--                              labels.forEach(function(item) {-->
+<!--                                $("#openmodal"+item).on("click", function () {-->
+<!--                                       alert('!!!')-->
+<!--                                       $('#modal'+item).modal('show');-->
+<!--                                });-->
+<!--                              });-->
+<!--                          </script>-->
+<!--                    <div class="row">-->
+<!--                        <div class="col-sm">-->
+<!--                            <table class="table">-->
+<!--                                <tbody>-->
+<!--                                    <tr>-->
+<!--                                        <td>-->
+<!--                                            <div class="container">-->
+<!--                                                <label class="switch">-->
+<!--                                                    <input type="checkbox">-->
+<!--                                                    <span class="slider"></span>-->
+<!--                                                </label>-->
+<!--                                                Zoom-->
+<!--                                            </div>-->
+<!--                                            <div class="container">-->
+<!--                                                <nav aria-label="breadcrumb">-->
+<!--                                                    <ol class="breadcrumb">-->
+<!--                                                    <li class="breadcrumb-item active" aria-current="page">Info 1</li>-->
+<!--                                                  </ol>-->
+<!--                                                </nav>-->
+<!--                                                <nav aria-label="breadcrumb">-->
+<!--                                                    <ol class="breadcrumb">-->
+<!--                                                    <li class="breadcrumb-item active" aria-current="page">Info 2</li>-->
+<!--                                                  </ol>-->
+<!--                                                </nav>-->
+<!--                                                <nav aria-label="breadcrumb">-->
+<!--                                                    <ol class="breadcrumb">-->
+<!--                                                    <li class="breadcrumb-item active" aria-current="page">Info 3</li>-->
+<!--                                                  </ol>-->
+<!--                                                </nav>-->
+<!--                                                <nav aria-label="breadcrumb">-->
+<!--                                                    <ol class="breadcrumb">-->
+<!--                                                    <li class="breadcrumb-item active" aria-current="page">Info 4</li>-->
+<!--                                                  </ol>-->
+<!--                                                </nav>-->
+<!--                                            </div>-->
+<!--                                        </td>-->
+<!--                                        <td>-->
+<!--                                            <div class="card">-->
+<!--                                                <div class="card-header text-center">-->
+<!--                                                    EYES-3-->
+<!--                                                </div>-->
+<!--                                                <div class="card-body">-->
+<!--&lt;!&ndash;                                                    <img src="..." class="rounded mx-auto d-block" alt="...">&ndash;&gt;-->
+<!--                                                </div>-->
+<!--                                            </div>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                </tbody>-->
+<!--                            </table>-->
+<!--                        </div>-->
+<!--                        <div class="col-sm">-->
+<!--                            <table class="table">-->
+<!--                                <tbody>-->
+<!--                                    <tr>-->
+<!--                                        <td>-->
+<!--                                            <div class="container">-->
+<!--                                                <label class="switch">-->
+<!--                                                    <input type="checkbox">-->
+<!--                                                    <span class="slider"></span>-->
+<!--                                                </label>-->
+<!--                                                Zoom-->
+<!--                                            </div>-->
+<!--                                            <div class="container">-->
+<!--                                                <nav aria-label="breadcrumb">-->
+<!--                                                    <ol class="breadcrumb">-->
+<!--                                                    <li class="breadcrumb-item active" aria-current="page">Info 1</li>-->
+<!--                                                  </ol>-->
+<!--                                                </nav>-->
+<!--                                                <nav aria-label="breadcrumb">-->
+<!--                                                    <ol class="breadcrumb">-->
+<!--                                                    <li class="breadcrumb-item active" aria-current="page">Info 2</li>-->
+<!--                                                  </ol>-->
+<!--                                                </nav>-->
+<!--                                                <nav aria-label="breadcrumb">-->
+<!--                                                    <ol class="breadcrumb">-->
+<!--                                                    <li class="breadcrumb-item active" aria-current="page">Info 3</li>-->
+<!--                                                  </ol>-->
+<!--                                                </nav>-->
+<!--                                                <nav aria-label="breadcrumb">-->
+<!--                                                    <ol class="breadcrumb">-->
+<!--                                                    <li class="breadcrumb-item active" aria-current="page">Info 4</li>-->
+<!--                                                  </ol>-->
+<!--                                                </nav>-->
+<!--                                            </div>-->
+<!--                                        </td>-->
+<!--                                        <td>-->
+<!--                                            <div class="card">-->
+<!--                                                <div class="card-header text-center">-->
+<!--                                                    EYES-4-->
+<!--                                                </div>-->
+<!--                                                <div class="card-body">-->
+<!--&lt;!&ndash;                                                    <img src="..." class="rounded mx-auto d-block" alt="...">&ndash;&gt;-->
+<!--                                                </div>-->
+<!--                                            </div>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                </tbody>-->
+<!--                            </table>-->
+<!--                        </div>-->
+<!--                    </div>-->

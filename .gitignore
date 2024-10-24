@@ -1,0 +1,9 @@
+.idea
+__pycache__
+orthanc_db
+logging
+inference_model
+staticfiles
+home/migrations
+api/migrations
+volumes

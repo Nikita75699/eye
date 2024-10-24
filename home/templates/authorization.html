@@ -1,0 +1,160 @@
+{% load static %}
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" type="text/css">
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/feather.min.js' %}"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+      <style>
+          body{
+              background-color:#efefef
+            }
+            a, a:hover{
+              color:#333
+            }
+      </style>
+  </head>
+  <body>
+        {% if user.is_authenticated  %}
+            <form method="GET" action="../relogin">
+                {% csrf_token %}
+                    <div class="modal modal-signin position-static d-block bg-secondary py-5" tabindex="-1" role="dialog" id="modalSignin">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header ">
+                            <h5 class="modal-title text-center" style="width: 50%; margin: auto">Авторизация</h5>
+                          </div>
+                          <div class="modal-body">
+                            <div class="alert alert-info text-center" role="alert">
+                                Вы вошли в систему как {{doctor_info.first_name}} {{doctor_info.patronymic}}
+                            </div>
+                          </div>
+                              <div class="modal-footer">
+                                 <button class="btn btn-primary" type="submit" name="input" style="width: 25%; margin: auto">Продолжить</button>
+                                 <button class="btn btn-primary" type="submit" name="output" style="width: 25%; margin: auto">Выйти</button>
+                              </div>
+                        </div>
+                      </div>
+                    </div>
+            </form>
+        {% else %}
+            {% if message == 'error' %}
+                <form method="POST" action="authorization">
+                        {% csrf_token %}
+                        <div class="modal modal-signin position-static d-block bg-secondary py-1" tabindex="-1" role="dialog" id="modalSignin">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title text-center" style="width: 50%; margin: auto">Авторизация</h5>
+                              </div>
+                              <div class="modal-body">
+                                <label for="floatingInput">Логин</label>
+                                <input type="text" class="form-control" name="login" value="{{login_use}}">
+                                <label for="floatingInput">Пароль</label>
+                                <div class="input-group mb-3">
+                                    <input class="form-control password" id="password" name="password" value="{{password_use}}" type="password" aria-describedby="basic-addon1" aria-label="Input group example">
+                                      <span class="input-group-text togglePassword" id="basic-addon1">
+                                          <i data-feather="eye" class="bi bi-eye" style="cursor: pointer; width: 16px;"></i>
+                                      </span>
+                                </div>
+                              </div>
+                              <div class="modal-footer">
+                                  <button class="btn btn-primary" type="submit" style="width: 50%; margin: auto">Войти</button>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="alert alert-danger text-center" role="alert" style="width: 30%; margin: auto">
+                            Пользователя с такими данными не существует
+                           </div>
+                        </div>
+
+                </form>
+            {% else %}
+                <form method="POST" action="authorization">
+                    {% csrf_token %}
+                        <div class="modal modal-signin position-static d-block bg-secondary py-5" tabindex="-1" role="dialog" id="modalSignin">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title text-center" style="width: 50%; margin: auto">Авторизация</h5>
+                              </div>
+                              <div class="modal-body">
+                                <label for="floatingInput">Логин</label>
+                                <input type="text" class="form-control" name="login" value="{{login_use}}">
+                                <label for="floatingInput">Пароль</label>
+                                <div class="input-group mb-3">
+                                    <input class="form-control password" id="password" name="password" value="{{password_use}}" type="password" aria-describedby="basic-addon1" aria-label="Input group example">
+                                      <span class="input-group-text togglePassword" id="basic-addon1">
+                                          <i data-feather="eye" class="bi bi-eye" style="cursor: pointer; width: 16px;"></i>
+                                      </span>
+                                </div>
+                              </div>
+                              <div class="modal-footer">
+                                  <button class="btn btn-primary" type="submit" style="width: 50%; margin: auto">Войти</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                </form>
+            {% endif %}
+        {% endif %}
+  </body>
+  <script>
+    feather.replace({ 'aria-hidden': 'true' });
+    $(".togglePassword").click(function (e) {
+          e.preventDefault();
+          var type = $(this).parent().parent().find(".password").attr("type");
+          console.log(type);
+          if(type == "password"){
+              $("svg.feather.feather-eye").replaceWith(feather.icons["eye-off"].toSvg());
+              $(this).parent().parent().find(".password").attr("type","text");
+          }else if(type == "text"){
+              $("svg.feather.feather-eye-off").replaceWith(feather.icons["eye"].toSvg());
+              $(this).parent().parent().find(".password").attr("type","password");
+          }
+    });
+  </script>
+</html>
+
+<!--  <form>-->
+<!--    <img class="mb-4" src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">-->
+<!--    <h1 class="h3 mb-3 fw-normal">Please sign in</h1>-->
+
+<!--    <div class="form-floating">-->
+<!--      <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">-->
+<!--      <label for="floatingInput">Email address</label>-->
+<!--    </div>-->
+<!--    <div class="form-floating">-->
+<!--      <input type="password" class="form-control" id="floatingPassword" placeholder="Password">-->
+<!--      <label for="floatingPassword">Password</label>-->
+<!--    </div>-->
+
+<!--    <div class="checkbox mb-3">-->
+<!--      <label>-->
+<!--        <input type="checkbox" value="remember-me"> Remember me-->
+<!--      </label>-->
+<!--    </div>-->
+<!--    <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>-->
+<!--    <p class="mt-5 mb-3 text-muted">© 2017–2022</p>-->
+<!--  </form>-->
+
+
+<!--    <form method="POST" action="authorization">-->
+<!--        <div class="tab-content" id="nav-tabContent">-->
+<!--            <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">-->
+<!--                <div class="modal-body p-5 pt-0">-->
+<!--                    <div class="form-floating mb-3">-->
+<!--                        <input type="text" class="form-control rounded-4" id="Input2" name="login">-->
+<!--                        <label for="floatingInput">Логин</label>-->
+<!--                    </div>-->
+<!--                    <div class="form-floating mb-3">-->
+<!--                        <input type="password" class="form-control rounded-4" id="Input1" name="password">-->
+<!--                        <label for="floatingPassword">Пароль</label>-->
+<!--                    </div>-->
+<!--                    <button class="w-100 mb-2 btn btn-lg rounded-4 btn-primary" type="submit">Войти</button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </form>-->
+

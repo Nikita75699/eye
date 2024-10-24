@@ -1,0 +1,23 @@
+version: '3.2'
+
+services:
+  retina:
+    restart: always
+    build:
+      context: ./
+    ports:
+      - '8080:8000'
+    volumes:
+      - ./:/eyes-classification
+      - orthanc_db:/var/lib/orthanc/db-v6
+    networks:
+      - orthanc-django
+
+networks:
+  orthanc-django:
+    external:
+      name: orthanc-django
+
+volumes:
+  orthanc_db:
+    external: true
