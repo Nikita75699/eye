@@ -6,12 +6,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Заголовок страницы</title>
-    <link rel="stylesheet" href="./styles/style.css">
-
   </head>
   <body class="flex-column h-100">
 		{% block content %}
-		<div class="container">
+		<div class="container h-100">
 			<br />
 			<div class="container">
 				<form method="POST" action="task" enctype="multipart/form-data">
@@ -84,7 +82,6 @@
 							</thead>
 							<tbody class="table-group-divider" id="p_with_d">
 								{% for appointment in app_with_d %} 
-
 										{% if appointment.score >= 0.9 %}
 											<tr onclick="moveToSelected(this)" class="user-danger">
 												<td class="visually-hidden">{{ appointment.id }}</td>
@@ -266,38 +263,7 @@
 			})
 		</script>
 		<div class="container wrapper">
-			<table
-				id="patient-table"
-				class="table-group-divider zz w-100 table table-striped-columns"
-				style="width: 100%"
-			>
-				<thead>
-					<tr>
-						<th class="align-middle" style="width: 15%; text-align: center">
-							Больница
-						</th>
-						<th class="align-middle" style="width: 15%; text-align: center">
-							Фамилия
-						</th>
-						<th class="align-middle" style="width: 15%; text-align: center">
-							Имя
-						</th>
-						<th class="align-middle" style="width: 15%; text-align: center">
-							Отчество
-						</th>
-						<th class="align-middle" style="width: 10%; text-align: center">
-							Дата рождения
-						</th>
-						<th class="align-middle" style="width: 10%; text-align: center">
-							Дата последнего приема
-						</th>
-						<th class="align-middle" style="width: 5%; text-align: center">
-							Патология
-						</th>
-					</tr>
-				</thead>
-				<tbody class="table-group-divider"></tbody>
-			</table>
+			{% include "table_app.html" %}
 		</div>
 	
 		<script>

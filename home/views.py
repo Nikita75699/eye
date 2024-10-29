@@ -31,7 +31,7 @@ from .inference_pb import inference_seg
 from PIL import Image
 import uuid
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 #model quality image
 model_clas = YOLO('inference_model/best.pt')
