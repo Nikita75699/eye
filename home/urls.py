@@ -6,7 +6,6 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('', views.authorization),
-    path('homes', views.homes),
     path('authorization', views.authorization, name='authorization'),
     path('index', views.index, name='home'),
     path('relogin', views.relogin),

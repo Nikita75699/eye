@@ -318,7 +318,7 @@ def get_data_appointment(
                     'class_ml': str(data.class_ml),
                     'data_mask': '/static/im.png',
                     'mask_path': str(data.mask_path),
-                    'image': 'data:image/png;base64,{}'.format(im_b64_str)
+                    'image': 'data:image/png;base64,{}'.format(im_b64_str),
                 }
             )
         except FileNotFoundError:
@@ -331,6 +331,7 @@ def get_appointment(
         request,
         patient,
 ):
+    print('!!!')
     doctor = Doctor.objects.get(user=request.user)
     patient = Patient.objects.get(id=patient)
     appointment = Appointment.objects.filter(patient=patient).latest('date')
@@ -412,7 +413,7 @@ def get_image(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-def get_data_appointment_old(appointments):
+def get_data_appointment_old(appointments, inform):
     inform_old = []
     number_app = 0
     for appointment in appointments:
@@ -425,17 +426,25 @@ def get_data_appointment_old(appointments):
                 inform_old.append(
                     {   
                         'number_app': number_app, 
-                        'eye_id': data.id,
+                        'eye_id': str(data.id),
                         'count': count + 1,
                     }
                 )
-
             except FileNotFoundError:
                 print(f"Файл не найден: {data.img_path}")
-                continue          
+                continue  
+    # for item in inform:
+    #     for item_old in inform_old:
+    #         if item_old['count'] == item['count']:
+    #             if 'apointment_old' not in item or item['apointment_old'] is None:
+    #                 print(item_old)
+    #                 item['apointment_old'] = []
+    #             item['apointment_old'].append(item_old)
+
     return inform_old
 
 def old_appointment(request, patient):
+
     doctor = Doctor.objects.get(user=request.user)
     appointment_id = request.POST.get('appointment_id')
        
@@ -445,21 +454,9 @@ def old_appointment(request, patient):
         appointment = Appointment.objects.filter(patient=patient).last()
         appointment_old = Appointment.objects.filter(patient=patient).exclude(id=appointment.id) if appointment else Appointment.objects.filter(patient=patient)
 
-        inform_old = get_data_appointment_old(appointment_old) if appointment else []
         inform = get_data_appointment(appointment) if appointment else []
+        inform_old = get_data_appointment_old(appointment_old, inform) if appointment else []
 
-        # Создаем словарь для быстрого поиска eye_id по count
-        old_count_map = {item_old['count']: item_old['eye_id'] for item_old in inform_old}
-
-        number_image_first = []
-        added_counts = set()
-
-        for item in inform:
-            count = item['count']
-            if count in old_count_map and count not in added_counts:
-                number_image_first.append((count, old_count_map[count]))
-                added_counts.add(count)
-       
         return render(
             request,
             'appointment.html',
@@ -472,7 +469,6 @@ def old_appointment(request, patient):
                 'check': 'check',
                 "appointment_old": appointment_old,
                 "inform_old": inform_old,
-                'inform_old_first':number_image_first,
             }
         )
     else:
@@ -481,7 +477,8 @@ def old_appointment(request, patient):
         inform = []
         if appointment is not None:
             inform = get_data_appointment(appointment)
-            inform_old = get_data_appointment_old(appointment_old)
+            inform_old = get_data_appointment_old(appointment_old, inform)
+
         return render(
             request,
             'appointment.html',

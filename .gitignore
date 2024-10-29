@@ -7,3 +7,5 @@ staticfiles
 home/migrations
 api/migrations
 volumes
+eyes_analysis/etc/secret_key.txt
+home/templates/appointment_.html

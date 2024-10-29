@@ -64,7 +64,6 @@
                                         </div>
                                         <div class="card-body text-center">
                                             <div class="card-body">
-                                                <!-- Кнопка-триггер модального окна -->
                                                 <img id="img{{item.count}}" class="img1" src={{item.image}} style="width: 100%" data-img-id="{{item.count}}" onclick="openModal({{item.count}})">
                                             </div>
                                              <div class="container">
@@ -126,19 +125,47 @@
                                               </div>
                                               <div class="modal-body">
                                                 <div class="container-fluid">
-                                                    <div class="col-12 ms-auto">
-                                                         <img id="img1{{item.count}}" src={{item.image}} style="width: 100%;">
-                                                            {{inform_old_first}}
-                                                            {% for item_old in inform_old %}
-                                                                {% if item.count == item_old.count %}
+                                                    <p>!!!</p>
+                                                    <a onclick="test({{inform_old}})">{{inform_old}}</a>
 
+                                                    <div class="col-12 ms-auto" style="display: flex;">
+                                                        <img id="img1{{item.count}}" src={{item.image}} style="height: 100%; object-fit:cover; " class="col-6">
+                                                        <div class='sliderWrap col-6' style='flex: 1; position:relative; overflow:hidden;'>
+                                                            <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+                                                                <div class="carousel-inner">
+                                                                    {% for item_old in inform_old %}
+                                                                        {% if item.count == item_old.count %}
+                                                                            {% if item_old.index == '1' %}
+                                                                            <div class="carousel-item active"></div>
+                                                                                <img class="d-block w-100" id="img_old{{ item_old.eye_id }}" src="{{ item_old.image }}" style="width: 100%;height: 100%; object-fit:cover">
+                                                                            </div>
+                                                                                <a class="carousel-control-prev" href="#carouselExampleControls" role="button" onclick="openImage('{{ item_old.eye_id }}')" data-slide="prev"></a>
+                                                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                                                <span class="sr-only">Previous</span>
+                                                                                </a>
+                                                                                <a class="carousel-control-next" id="next" href="#carouselExampleControls" onclick="openImage('{{ item_old.eye_id }}')" role="button" data-slide="next">
+                                                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                                                <span class="sr-only">Next</span>
+                                                                                </a>
+                                                                            {% else %}
+                                                                            <div class="carousel-item"></div>
+                                                                                <img class="d-block w-100" id="img_old{{ item_old.eye_id }}" src="{{ item_old.image }}" style="width: 100%;height: 100%; object-fit:cover">
+                                                                            </div>
+                                                                                 <a class="carousel-control-prev" href="#carouselExampleControls" role="button" onclick="openImage('{{ item_old.eye_id }}')" data-slide="prev"></a>
+                                                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                                                <span class="sr-only">Previous</span>
+                                                                                </a>
+                                                                                <a class="carousel-control-next" id="next" href="#carouselExampleControls" onclick="openImage('{{ item_old.eye_id }}')" role="button" data-slide="next">
+                                                                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                                                    <span class="sr-only">Next</span>
+                                                                                </a>
+                                                                            {%endif%}
+                                                                        {%endif%}
+                                                                    {%endfor%}
 
-                                                                    <div>
-                                                                        <a class="open-image-btn" onclick="openImage('{{ item_old.eye_id }}')" data-count="{{ item_old.count }}">Открыть изображение</a>
-                                                                        <img id="img_old{{ item_old.eye_id }}" src="{{ item_old.image }}" style="width: 100%;">
-                                                                    </div>
-                                                                {% endif %}
-                                                            {% endfor %}
+                                                            </div>
+                                                        </div>
+
 
                                                     </div>
                                                 </div>
@@ -173,8 +200,14 @@
                                         <script src="{% static 'js/jquery.min.js' %}"></script>
 
                                         <script>
+                                            var test = function(arr){
+                                                console.log("work")
+                                                console.log(arr)
+                                            }
+
                                             $(document).ready(function() {
-                                                window.openImage = function(eye_id) {
+                                               var openImage = function(eye_id) {
+                                                    console.log(eye_id)
                                                     $.ajax({
                                                         url: '/get_image/',
                                                         type: 'GET',
@@ -205,6 +238,8 @@
                                             } else {
                                               modalToggle.show();
                                             }
+
+                                            openImage("{{ item_old.image }}")
                                           }
 
                                           function openModal2(imageId) {
