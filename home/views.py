@@ -28,6 +28,8 @@ from ultralytics import YOLO
 from api.models import *
 from django.core.paginator import Paginator
 from django.shortcuts import render
+from home import inference_pb
+   
 
 #model quality image
 model_clas = YOLO('inference_model/best.pt')
@@ -331,7 +333,6 @@ def get_appointment(
         request,
         patient,
 ):
-    print('!!!')
     doctor = Doctor.objects.get(user=request.user)
     patient = Patient.objects.get(id=patient)
     appointment = Appointment.objects.filter(patient=patient).latest('date')
@@ -552,7 +553,6 @@ def inference(dicom, pixel_array):
     else:
         im_arr = cv2.cvtColor(pixel_array, cv2.COLOR_YCR_CB2RGB)
 
-    # results = model_clas(cv2.cvtColor(dicom.pixel_array, cv2.COLOR_YCR_CB2RGB))
     results = model_clas(im_arr)
 
     for result in results:
@@ -560,14 +560,17 @@ def inference(dicom, pixel_array):
         top1_class_index = result.probs.top1
         top1_confidence = result.probs.top1conf.item()
         top1_class_name = result.names[top1_class_index]
-
-    if ((top1_class_name == 'good') and (top1_confidence >=0.9)):
+    print('top1_class_index', top1_class_index, '/n',
+          'top1_confidence', top1_confidence, '/n'
+          'top1_class_name', top1_class_name, '/n'
+    )    
+    if (top1_class_name == 'good'):
         res_DR = model(im_arr)
         for r in res_DR:
             top1_class_index_DR = r.probs.top1
             top1_confidence_DR = r.probs.top1conf.item()
             top1_class_name_DR = r.names[top1_class_index]
-        if (top1_confidence >= 0.55):
+        if (top1_confidence_DR >= 0.55):
             score = top1_confidence_DR
             class_ml = 1
         else:
@@ -578,15 +581,13 @@ def inference(dicom, pixel_array):
         score = 0
     else:
         class_ml = 2
-        score = 0
-    print('score', score, 'class_ml', class_ml)    
+        score = 0   
     return score, class_ml
 
 
 def read_dicom(dicom):
     patient_sex = dicom.PatientSex
     patient = dicom.PatientName
-    print('ac_number', dicom.PatientID)
     ac_number = dicom.PatientID
     patient = str(patient).split("^")
     patient_name = patient[0]
@@ -635,8 +636,11 @@ def process_appointment(dicom_path):
                 patient_sex, patient_name, patient_surname, patient_patronymic, device, patient_birthdate, study_date, ac_number = read_dicom(dicom)
                 pixel_array = dicom.pixel_array
                 score, class_ml = inference(dicom, pixel_array)
-
-                mask_path = 'maskas/0ae16886-aab9-480d-bba6-5aae4deaf8a2.png'
+                color_mask = inference(
+                    Image.open(img_path)
+                )
+                masks_uuid 
+                mask_path = color_mask.save('orthanc_db/masks')
 
                 patient_search = Patient.objects.filter(
                     first_name=patient_name,
