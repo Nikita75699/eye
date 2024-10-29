@@ -11,7 +11,7 @@ with open('eyes_analysis/etc/secret_key.txt') as f:
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['retina.ssmu.ru', '172.24.200.72', '127.0.0.1', '172.21.0.3','172.21.0.2']
+ALLOWED_HOSTS = ['retina.ssmu.ru', '172.24.200.72', '127.0.0.1', '172.21.0.3','172.21.0.2', '*']
 
 INSTALLED_APPS = [
     'home',

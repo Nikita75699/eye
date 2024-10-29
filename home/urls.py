@@ -15,7 +15,7 @@ urlpatterns = [
     path('get_appointment<uuid:patient>/', views.get_appointment, name='get_appointment'),
     path('get_check_appointment<uuid:id_appointment>/', views.get_check_appointment, name='get_check_appointment'),
     path('report', views.save_report),
-    path('modal_pacient<uuid:id_appointment>', views.modal_pacient),
+    # path('modal_pacient<uuid:id_appointment>', views.modal_pacient),
     path('get_appointment<uuid:patient>/old_appointment', views.old_appointment),
     path('progress_bar', views.progress_bar),
     path('del_check<int:id_patient>/', views.delete_check, name='del_check'),

@@ -6,6 +6,7 @@ import torchvision
 from PIL import Image
 from tqdm import tqdm
 
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 model = torch.load('inference_model/ophtalmic_segmentation.pb', weights_only=False)
 model.eval()
@@ -41,12 +42,13 @@ def get_temp_mask(
     return color_mask
 
 
-def inference(
-        source_image: Image.Image,
-):
-    w, h = source_image.size
-    image = np.array(source_image.copy())
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+def inference_seg(source_image):
+    if isinstance(source_image, np.ndarray):
+        h, w = source_image.shape[:2]
+    else:
+        raise ValueError("source_image должен быть массивом NumPy")
+    image = source_image.copy()
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Исправлено на BGR -> RGB
     image = cv2.resize(image, (1024, 1024))
     image = to_tensor(np.array(image))
     y_hat = model(torch.Tensor([image]).to('cuda'))

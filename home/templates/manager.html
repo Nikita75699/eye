@@ -1,0 +1,509 @@
+{% extends 'base.html'%}
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+		{% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заголовок страницы</title>
+    <link rel="stylesheet" href="./styles/style.css">
+
+  </head>
+  <body class="flex-column h-100">
+		{% block content %}
+		<div class="container">
+			<br />
+			<div class="container">
+				<form method="POST" action="task" enctype="multipart/form-data">
+					{% csrf_token %}
+					<h5 class="display-10fw-bold text-left">
+						Выберите ответсвенного доктора
+					</h5>
+					<select
+						class="form-select mb-3 multi-select-doctor"
+						aria-label="Пример выбора по умолчанию"
+						name="doctor"
+					>
+						{% for i in doctors %} {% if i.post == 1 %}
+						<option value="{{i.id}}">
+							{{i.surname}} {{i.first_name}} {{i.patronymic}} / Доктор
+						</option>
+						{% endif %} {% endfor %}
+					</select>
+					<div class="row">
+						<div class="col-6">
+							<h5 class="display-10fw-bold text-left">
+								Выберете пациентов для прикрепления к доктору
+							</h5>
+						</div>
+						<div class="col-6">
+							<div class="form-check form-switch">
+								<input
+									class="form-check-input"
+									type="checkbox"
+									role="switch"
+									id="flexSwitchCheckChecked1"
+								/>
+								<label class="form-check-label" for="flexSwitchCheckChecked1"
+									>Переключить содержимое таблицы (Диабет)</label
+								>
+							</div>
+						</div>
+					</div>
+					<div class="scroll-table-body">
+						<table
+							id="patients_with_d"
+							class="table-group-divider zz w-100 table table-striped-columns"
+						>
+							<thead>
+								<tr>
+									<th class="visually-hidden">id</th>
+									<th scope="col" class="col-2 text-center">Больница</th>
+									<th scope="col" class="col-2 text-center">Фамилия</th>
+									<th scope="col" class="col-2 text-center">Имя</th>
+									<th scope="col" class="col-2 text-center">Отчество</th>
+									<th scope="col" class="col-2 text-center">
+										Дата приема
+										<a href="#" onclick="sortTableByDate()">
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												width="16"
+												height="16"
+												fill="currentColor"
+												class="bi bi-filter"
+												viewBox="0 0 16 16"
+											>
+												<path
+													d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"
+												/>
+											</svg>
+										</a>
+									</th>
+									<th scope=" col" class="col-1 text-center">Вероятность</th>
+								</tr>
+							</thead>
+							<tbody class="table-group-divider" id="p_with_d">
+								{% for appointment in app_with_d %} 
+
+										{% if appointment.score >= 0.9 %}
+											<tr onclick="moveToSelected(this)" class="user-danger">
+												<td class="visually-hidden">{{ appointment.id }}</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.locations }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.first_name }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.surname }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.patronymic }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.date|date:"d-m-Y" }}
+												</td>
+												<td scope="col" class="text-center">
+													{{ appointment.score|floatformat:"-2" }}
+												</td>
+											</tr>
+										{% elif 0.9 > appointment.score and appointment.score >= 0.55 %}
+											<tr onclick="moveToSelected(this)" class="user-warning">
+												<td class="visually-hidden">{{ appointment.id }}</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.locations }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.first_name }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.surname }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.patronymic }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.date|date:"d-m-Y" }}
+												</td>
+												<td scope="col" class="text-center">
+													{{ appointment.score|floatformat:"-2" }}
+												</td>
+											</tr>
+										{% else %}
+										<tr onclick="moveToSelected(this)" class="table-info">
+											<td class="visually-hidden">{{ appointment.id }}</td>
+											<td scope="col-2" class="text-center">
+												{{ appointment.patient.locations }}
+											</td>
+											<td scope="col-2" class="text-center">
+												{{ appointment.patient.first_name }}
+											</td>
+											<td scope="col-2" class="text-center">
+												{{ appointment.patient.surname }}
+											</td>
+											<td scope="col-2" class="text-center">
+												{{ appointment.patient.patronymic }}
+											</td>
+											<td scope="col-2" class="text-center">
+												{{ appointment.date|date:"d-m-Y" }}
+											</td>
+											<td scope="col" class="text-center">Норма</td>
+										</tr>
+										{% endif %} 	
+								{% endfor %}
+							</tbody>
+							<tbody
+								class="table-group-divider"
+								id="p_without_d"
+								style="display: none"
+							>
+								{% for appointment in app_without_d %} 
+										{% if appointment.score >= 0.9 %}
+											<tr onclick="moveToSelected(this)" class="user-danger">
+												<td class="visually-hidden">{{ appointment.id }}</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.locations }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.first_name }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.surname }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.patronymic }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.date|date:"d-m-Y" }}
+												</td>
+												<td scope="col" class="text-center">
+													{{ appointment.score|floatformat:"-2" }}
+												</td>
+											</tr>
+										{% elif 0.9 > appointment.score and appointment.score >= 0.55 %}
+											<tr onclick="moveToSelected(this)" class="user-warning">
+												<td class="visually-hidden">{{ appointment.id }}</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.locations }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.first_name }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.surname }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.patronymic }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.date|date:"d-m-Y" }}
+												</td>
+												<td scope="col" class="text-center">
+													{{ appointment.score|floatformat:"-2" }}
+												</td>
+											</tr>
+										{% else %}
+											<tr onclick="moveToSelected(this)" class="table-info">
+												<td class="visually-hidden">{{ appointment.id }}</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.locations }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.first_name }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.surname }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.patient.patronymic }}
+												</td>
+												<td scope="col-2" class="text-center">
+													{{ appointment.date|date:"d-m-Y" }}
+												</td>
+												<td scope="col" class="text-center">Норма</td>
+											</tr>
+										{% endif %} 
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+					<input type="hidden" id="selectedPatientsInput" name="patients" />
+					<select
+						id="selectedPatients"
+						class="multi-wrapper"
+						multiple="multiple"
+						name="patients"
+						onchange="moveToTable(this)"
+					></select>
+					<button
+						class="btn appointment-button d-grid gap-2 col-6 mx-auto my-3"
+						type="submit"
+					>
+						Закрепить пациентов за врачом
+					</button>
+				</form>
+			</div>
+		</div>
+
+		<script>
+			const checkbox = document.getElementById('flexSwitchCheckChecked1')
+			const patientsWithDiabetes = document.getElementById('p_with_d')
+			const patientsWithoutDiabetes = document.getElementById('p_without_d')
+			const label = document.querySelector(
+				"label[for='flexSwitchCheckChecked1']"
+			)
+
+			checkbox.addEventListener('change', function () {
+				if (checkbox.checked) {
+					patientsWithDiabetes.style.display = 'none'
+					patientsWithoutDiabetes.style.display = ''
+					label.innerText = 'Переключить содержимое таблицы (Без диабета)'
+				} else {
+					patientsWithDiabetes.style.display = ''
+					patientsWithoutDiabetes.style.display = 'none'
+					label.innerText = 'Переключить содержимое таблицы (Диабет)'
+				}
+			})
+		</script>
+		<div class="container wrapper">
+			<table
+				id="patient-table"
+				class="table-group-divider zz w-100 table table-striped-columns"
+				style="width: 100%"
+			>
+				<thead>
+					<tr>
+						<th class="align-middle" style="width: 15%; text-align: center">
+							Больница
+						</th>
+						<th class="align-middle" style="width: 15%; text-align: center">
+							Фамилия
+						</th>
+						<th class="align-middle" style="width: 15%; text-align: center">
+							Имя
+						</th>
+						<th class="align-middle" style="width: 15%; text-align: center">
+							Отчество
+						</th>
+						<th class="align-middle" style="width: 10%; text-align: center">
+							Дата рождения
+						</th>
+						<th class="align-middle" style="width: 10%; text-align: center">
+							Дата последнего приема
+						</th>
+						<th class="align-middle" style="width: 5%; text-align: center">
+							Патология
+						</th>
+					</tr>
+				</thead>
+				<tbody class="table-group-divider"></tbody>
+			</table>
+		</div>
+	
+		<script>
+			function check(id) {
+				var dinamyc_image = document.getElementById('dinamyc_image' + id)
+				var no_dinamyc_image = document.getElementById('no_dinamyc_image' + id)
+				if (dinamyc_image.style.display === 'none') {
+					dinamyc_image.style.display = ''
+					no_dinamyc_image.style.display = 'none'
+				} else {
+					dinamyc_image.style.display = 'none'
+					no_dinamyc_image.style.display = ''
+				}
+			}
+		</script>
+		<br /><br />
+		<div class="container">
+			<form method="POST" action="filter_chart" enctype="multipart/form-data">
+				{% csrf_token %}
+				<div class="input-group">
+					<div class="input-group-text">От</div>
+					<input
+						type="date"
+						class="form-control"
+						name="data_from"
+						value="2017-06-01"
+					/>
+					<div class="input-group-text">До</div>
+					<input
+						type="date"
+						class="form-control"
+						name="data_to"
+						value="2030-06-01"
+					/>
+					<button class="btn appointment-button" type="submit">
+						Фильтр по дате
+					</button>
+				</div>
+			</form>
+			<div class="row gy-5 justify-content-center align-items-center">
+				<div class="col-5 chart-container">
+					<canvas id="myChart3"></canvas>
+				</div>
+				<div class="col-1"></div>
+				<div class="col-5">
+					<canvas id="myChart2"></canvas>
+				</div>
+			</div>
+			<br />
+			<div class="row gy-5 justify-content-center">
+				<div class="col-5 chart-container">
+					<canvas id="myChart1"></canvas>
+				</div>
+				<div class="col-1"></div>
+				<div class="col-5">
+					<canvas id="myChart4"></canvas>
+				</div>
+			</div>
+		</div>
+		<script src="{% static 'js/chart.js' %}"></script>
+		<script src="{% static 'js/chartjs-plugin-datalabels.js' %}"></script>
+		<script>
+			const ctx1 = document.getElementById('myChart1');
+			var ctx2 = document.getElementById("myChart2").getContext('2d');
+			const ctx3 = document.getElementById('myChart3');
+			const ctx4 = document.getElementById('myChart4');
+
+			new Chart(ctx1, {
+				plugins: [ChartDataLabels],
+				type: 'doughnut',
+					data: {
+						labels: ['Женщины', 'Мужчины'],
+						datasets: [
+							{
+								data: [{{inform_list_f}}, {{inform_list_m}}],
+							},
+						],
+					},
+					options: {
+							scales: {
+								y: {
+									beginAtZero: true
+								},
+							},
+					plugins: {
+							datalabels: {
+								display: true,
+								align: 'center',
+								backgroundColor: '#ccc',
+								borderRadius: 3,
+								font: {
+									size: 18,
+								},
+							},
+						},
+					},
+			});
+				var myChart = new Chart(ctx2, {
+					plugins: [ChartDataLabels],
+					type: 'bar',
+					data: {
+						labels: ["до 18","от 18 до 30","от 30 до 45","от 45 до 60","старше 60"],
+						datasets: [{
+							label: 'С паталогией',
+							backgroundColor: '#6495ed',
+							data: [{{inform_list_18_t}}, {{inform_list_30_t}}, {{inform_list_45_t}}, {{inform_list_60_t}}, {{inform_list_70_t}}],
+						}, {
+							label: 'Без патологии',
+							backgroundColor: '#20b2aa',
+							data: [{{inform_list_18_f}}, {{inform_list_30_f}}, {{inform_list_45_f}}, {{inform_list_60_f}}, {{inform_list_70_f}}],
+						}],
+					},
+						options: {
+
+							plugins: {
+									datalabels: {
+										display: true,
+										align: 'top',
+										backgroundColor: '#ccc',
+										borderRadius: 3,
+										font: {
+											size: 12,
+										},
+									},
+								},
+					}
+				});
+
+				var labels_ = [
+						{% for item in inform_list_l %}
+							"{{ item.key }}",
+						{% endfor %}
+					]
+				var value_ = [
+						{% for item in inform_list_l %}
+							{{ item.value }},
+						{% endfor %}
+					]
+				new Chart(ctx3, {
+						plugins: [ChartDataLabels],
+						type: 'doughnut',
+						data: {
+							labels: labels_,
+							datasets: [{
+								label: 'человек',
+								data: value_,
+								borderWidth: 1
+							}]
+						},
+						options: {
+							scales: {
+								y: {
+									beginAtZero: true
+								}
+							},
+							plugins: {
+									datalabels: {
+										display: true,
+										align: 'top',
+										backgroundColor: '#ccc',
+										borderRadius: 3,
+										font: {
+											size: 12,
+										},
+									},
+								},
+						}
+					});
+			new Chart(ctx4, {
+				plugins: [ChartDataLabels],
+				type: 'doughnut',
+				data: {
+					labels: ['Норма мужчины', 'Патология мужчины', 'Норма женщины', 'Патология женщины'],
+						datasets: [
+							{
+								data: [{{inform_list_p1}}, {{inform_list_p2}}, {{inform_list_p3}}, {{inform_list_p4}}],
+										backgroundColor: [
+											'#ff6425',
+											'#cf3500',
+											'#20b2aa',
+											'#6495ed',
+										],
+							},
+						],
+				},
+				options: {
+					scales: {
+						y: {
+							beginAtZero: true
+						}
+					},
+					plugins: {
+							datalabels: {
+								display: true,
+								align: 'center',
+								backgroundColor: '#ccc',
+								borderRadius: 3,
+								font: {
+									size: 16,
+								},
+							},
+						},
+				}
+			});
+
+		</script>	
+		{% endblock %}
+  </body>
+</html>

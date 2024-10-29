@@ -16,7 +16,6 @@ import base64
 import pydicom
 import datetime
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
 from io import BytesIO
 from django.views.decorators.csrf import csrf_exempt
@@ -28,8 +27,11 @@ from ultralytics import YOLO
 from api.models import *
 from django.core.paginator import Paginator
 from django.shortcuts import render
-from home import inference_pb
-   
+from .inference_pb import inference_seg
+from PIL import Image
+import uuid
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 #model quality image
 model_clas = YOLO('inference_model/best.pt')
@@ -93,7 +95,7 @@ def get_personal_area(
 
         return render(
             request,
-            'index.html',
+            'manager.html',
             context={
                 'doctor': doctor,
                 'doctors': doctors if doctors is not None else [],
@@ -129,7 +131,7 @@ def get_personal_area(
         export_patients_without_diabetes = Appointment.objects.filter(doctor=doctor, patient__type_pacient=2, export_csv=False)
         return render(
             request,
-            'index.html',
+            'doctor.html',
             context={
                 'doctor': doctor,
                 'patients_with_diabetes': patients_with_diabetes,
@@ -259,10 +261,6 @@ def save_report(request):
     #         'patients_without_diabetes': patients_without_diabetes,
     #     }
     # )
-
-
-def block_modal_pacient(request):
-    return render(request, 'modal_pacient.html')
 
 
 def get_data_appointment(
@@ -520,38 +518,7 @@ def add_appointment(patient, dicom_path, mask_path, study_date, class_ml, score=
     data.save()
 
 
-def modal_pacient(request, id_appointment):
-    doctor = Doctor.objects.get(user=request.user)
-    appointment = Appointment.objects.get(id=id_appointment)
-    patient = appointment.patient
-    inform = []
-    if appointment is not None:
-        inform = get_data_appointment(appointment)
-
-    return HttpResponse(
-        json.dumps({
-            "result": True,
-            "modal_list": render_to_string(
-                'modal_pacient.html',
-                context={
-                    'doctor': doctor,
-                    'patient': patient,
-                    'appointment': appointment,
-                    'inform': inform,
-                    'appointments': Appointment.objects.filter(patient=patient) if Appointment.objects.filter(patient=patient) is not None else [],
-                    'classes_list': classes_list,
-                }
-            ),
-        }), content_type="application/json")
-
-
-def inference(dicom, pixel_array):
-
-    color_space = dicom.PhotometricInterpretation
-    if color_space == 'RGB':
-        im_arr = cv2.cvtColor(pixel_array, cv2.COLOR_RGB2BGR)
-    else:
-        im_arr = cv2.cvtColor(pixel_array, cv2.COLOR_YCR_CB2RGB)
+def inference(dicom, im_arr):
 
     results = model_clas(im_arr)
 
@@ -560,16 +527,18 @@ def inference(dicom, pixel_array):
         top1_class_index = result.probs.top1
         top1_confidence = result.probs.top1conf.item()
         top1_class_name = result.names[top1_class_index]
-    print('top1_class_index', top1_class_index, '/n',
-          'top1_confidence', top1_confidence, '/n'
-          'top1_class_name', top1_class_name, '/n'
-    )    
+    print(f'top1_class_index: {top1_class_index}n'
+        f'top1_confidence: {top1_confidence}n'
+        f'top1_class_name: {top1_class_name}n')    
     if (top1_class_name == 'good'):
         res_DR = model(im_arr)
         for r in res_DR:
             top1_class_index_DR = r.probs.top1
             top1_confidence_DR = r.probs.top1conf.item()
             top1_class_name_DR = r.names[top1_class_index]
+        print(f'top1_class_index_DR: {top1_class_index_DR}n'
+        f'top1_confidence_DR: {top1_confidence_DR}n'
+        f'top1_class_name_DR: {top1_class_name_DR}n')    
         if (top1_confidence_DR >= 0.55):
             score = top1_confidence_DR
             class_ml = 1
@@ -635,12 +604,21 @@ def process_appointment(dicom_path):
             try:
                 patient_sex, patient_name, patient_surname, patient_patronymic, device, patient_birthdate, study_date, ac_number = read_dicom(dicom)
                 pixel_array = dicom.pixel_array
-                score, class_ml = inference(dicom, pixel_array)
-                color_mask = inference(
-                    Image.open(img_path)
-                )
-                masks_uuid 
-                mask_path = color_mask.save('orthanc_db/masks')
+
+                color_space = dicom.PhotometricInterpretation
+                if color_space == 'RGB':
+                    im_arr = cv2.cvtColor(pixel_array, cv2.COLOR_RGB2BGR)
+                else:
+                    im_arr = cv2.cvtColor(pixel_array, cv2.COLOR_YCR_CB2RGB)
+
+                score, class_ml = inference(dicom, im_arr)
+                color_mask = inference_seg(im_arr)
+                # Генерируем уникальное имя файла
+                masks_uuid = str(uuid.uuid4())
+                mask_path = f'orthanc_db/masks/{masks_uuid}.png'
+
+                # Сохраняем цветную маску
+                color_mask.save(mask_path)
 
                 patient_search = Patient.objects.filter(
                     first_name=patient_name,
